@@ -338,6 +338,13 @@ public final class PurchasePlugin
 
     Log.d(mTag, "init()");
 
+    // init() runs again on every page reload (Cordova keeps this plugin instance),
+    // so release the previous client - otherwise each reload leaks a BillingClient
+    // with its Play Store service binding and PlayBillingLibrary thread pool.
+    if (mBillingClient != null) {
+      mBillingClient.endConnection();
+      mIsServiceConnected = false;
+    }
 
     mBillingClient = BillingClient
       .newBuilder(cordova.getActivity())
